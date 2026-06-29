@@ -11,7 +11,10 @@
   <body>
     <div class="container-fluid py-3">
       <a href="/">Projects</a>
-      <h1 th:text="${project.name}"></h1>
+      <h1>
+        <span th:text="${project.name}"></span>
+        <a class="help-link" href="/help#project-dashboard" title="Help">?</a>
+      </h1>
       <p>
         <b>Customer:</b> <span th:text="${project.customerName}"></span> |
         <b>Source:</b> <span th:text="${project.sourceSystem}"></span> |
@@ -65,7 +68,10 @@
           <button class="btn btn-warning">Run Deterministic Audit</button>
         </form>
       </div>
-      <h2>Configurable Windchill Target Tabs</h2>
+      <h2>
+        Configurable Windchill Target Tabs
+        <a class="help-link" href="/help#mapping-workspace" title="Help">?</a>
+      </h2>
       <ul class="nav nav-pills mb-3">
         <li class="nav-item" th:each="t:${types}">
           <a
@@ -75,7 +81,9 @@
           ></a>
         </li>
       </ul>
-      <h2>Exports</h2>
+      <h2>
+        Exports <a class="help-link" href="/help#exports" title="Help">?</a>
+      </h2>
       <div class="mb-2">
         <form
           class="d-inline"

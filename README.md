@@ -10,6 +10,7 @@ This is **not** an AI tool, middleware runtime, automatic migration engine, auto
 - Agile-to-Windchill demo seed button.
 - Configurable Windchill target object tabs loaded from `TargetObjectType` records.
 - Target-first mapping workspace centered on Windchill target fields.
+- Contextual Help Center with question-mark links beside major UI components and a demo how-to walkthrough.
 - Three-panel UI:
   - Source Schema Browser with source tables, fields, sample values, null percentage, distinct count, max length, duplicate/list indicators.
   - Windchill Staging Schema / Mapping Matrix with required field visibility and manual mapping forms.

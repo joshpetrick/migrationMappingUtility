@@ -1,7 +1,8 @@
 package ext.ucoe.plmmigrationassistant.domain;
+import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
+
 import jakarta.persistence.*;
 import java.time.Instant;
-import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
 @Entity
 public class FieldMapping {
   @Id @GeneratedValue public Long id;

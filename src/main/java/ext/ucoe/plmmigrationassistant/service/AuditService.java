@@ -1,10 +1,11 @@
 package ext.ucoe.plmmigrationassistant.service;
+import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
+
 import ext.ucoe.plmmigrationassistant.domain.*;
 import ext.ucoe.plmmigrationassistant.repository.*;
+import java.util.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.*;
-import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
 @Service
 public class AuditService {
   private final TargetObjectTypeRepository types;
@@ -37,8 +38,8 @@ public class AuditService {
              blank(fm.defaultValue) && fm.sourceColumn == null &&
                  fm.mappingStatus != MappingStatus.NOT_APPLICABLE)) {
           out.add(add(p, type, attr, fm, Severity.ERROR, "REQUIRED_UNMAPPED",
-                      "Required target field has no mapping, default, or " +
-                      "approved not-applicable justification."));
+                      "Required target field has no mapping, default, or "
+                          + "approved not-applicable justification."));
         }
         if (fm != null) {
           if (fm.mappingType == MappingType.LOOKUP && fm.lookupTable == null)
@@ -48,8 +49,8 @@ public class AuditService {
           if (fm.mappingType == MappingType.DEFAULT_VALUE &&
               blank(fm.defaultValue))
             out.add(add(p, type, attr, fm, Severity.ERROR, "DEFAULT_MISSING",
-                        "Mapping type is DEFAULT_VALUE but no default value " +
-                        "is assigned."));
+                        "Mapping type is DEFAULT_VALUE but no default value "
+                            + "is assigned."));
           if (fm.mappingType == MappingType.DIRECT && fm.sourceColumn == null)
             out.add(
                 add(p, type, attr, fm, Severity.ERROR, "DIRECT_SOURCE_MISSING",

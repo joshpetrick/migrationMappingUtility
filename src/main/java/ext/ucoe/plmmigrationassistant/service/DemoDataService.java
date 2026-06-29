@@ -1,9 +1,10 @@
 package ext.ucoe.plmmigrationassistant.service;
+import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
+
 import ext.ucoe.plmmigrationassistant.domain.*;
 import ext.ucoe.plmmigrationassistant.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
 @Service
 public class DemoDataService {
   private final MigrationProjectRepository projects;
@@ -47,8 +48,8 @@ public class DemoDataService {
     p.targetSystem = "PTC Windchill";
     p.migrationScope = "Parts, Documents, BOMs, Attachments";
     p.architectOwner = "migration consultant";
-    p.description = "Demo project for deterministic source-to-Windchill " +
-                    "mapping specifications.";
+    p.description = "Demo project for deterministic source-to-Windchill "
+                    + "mapping specifications.";
     projects.save(p);
     SourceImport si = new SourceImport();
     si.project = p;
@@ -140,8 +141,8 @@ public class DemoDataService {
     GapDecision gd = new GapDecision();
     gd.project = p;
     gd.title = "Confirm Prototype lifecycle mapping";
-    gd.description = "Customer must approve Agile lifecycle phase Prototype " +
-                     "mapping to Windchill INWORK.";
+    gd.description = "Customer must approve Agile lifecycle phase Prototype "
+                     + "mapping to Windchill INWORK.";
     gd.severity = Severity.WARNING;
     gd.targetObjectType = wt;
     gd.targetAttribute = life;

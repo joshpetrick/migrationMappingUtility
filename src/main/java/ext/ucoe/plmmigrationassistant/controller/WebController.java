@@ -1,12 +1,16 @@
 package ext.ucoe.plmmigrationassistant.controller;
+import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
+
 import ext.ucoe.plmmigrationassistant.domain.*;
 import ext.ucoe.plmmigrationassistant.repository.*;
 import ext.ucoe.plmmigrationassistant.service.*;
+import java.time.Instant;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import java.time.Instant;
-import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
 @Controller
 public class WebController {
   private final MigrationProjectRepository projects;
@@ -95,18 +99,25 @@ public class WebController {
         selected == null
             ? java.util.List.of()
             : attrs.findByTargetObjectTypeIdOrderBySortOrderAsc(selected.id));
+    var tabMappings =
+        mappings.findByTargetObjectTypeId(selected == null ? -1 : selected.id);
+    Map<Long, FieldMapping> mappingByAttribute =
+        tabMappings.stream().collect(Collectors.toMap(
+            mapping -> mapping.targetAttribute.id,
+            Function.identity(),
+            (existing, replacement) -> replacement));
+
     model.addAttribute("sourceTables", tables.findBySourceImportProjectId(id));
     model.addAttribute("allColumns", cols.findAll());
-    model.addAttribute("mappings", mappings.findByTargetObjectTypeId(
-                                       selected == null ? -1 : selected.id));
+    model.addAttribute("mappings", tabMappings);
+    model.addAttribute("mappingByAttribute", mappingByAttribute);
     model.addAttribute("lookupTables", lookups.findAllByProjectId(id));
     model.addAttribute("mappingTypes", MappingType.values());
     model.addAttribute("mappingStatuses", MappingStatus.values());
     return "workspace";
   }
   @PostMapping("/projects/{projectId}/mappings")
-  String
-  saveMapping(@PathVariable Long projectId,
+  String saveMapping(@PathVariable Long projectId,
               @RequestParam Long targetAttributeId,
               @RequestParam(required = false) Long sourceColumnId,
               @RequestParam MappingType mappingType,
@@ -137,6 +148,9 @@ public class WebController {
       SourceColumnProfile sc = cols.findById(sourceColumnId).orElse(null);
       fm.sourceColumn = sc;
       fm.sourceTable = sc == null ? null : sc.sourceTable;
+    } else {
+      fm.sourceColumn = null;
+      fm.sourceTable = null;
     }
     fm.mappingType = mappingType;
     fm.mappingStatus = mappingStatus;
@@ -162,5 +176,10 @@ public class WebController {
   String doExport(@PathVariable Long id, @PathVariable ExportType type) {
     export.export(id, type);
     return "redirect:/projects/" + id;
+  }
+
+  @GetMapping("/help")
+  String help() {
+    return "help";
   }
 }

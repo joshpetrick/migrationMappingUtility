@@ -1,6 +1,7 @@
 package ext.ucoe.plmmigrationassistant.domain;
-import jakarta.persistence.*;
 import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
+
+import jakarta.persistence.*;
 @Entity
 public class ValidationRuleSpec {
   @Id @GeneratedValue public Long id;

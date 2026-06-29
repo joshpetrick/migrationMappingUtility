@@ -1,10 +1,11 @@
 package ext.ucoe.plmmigrationassistant.service;
+import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
+
 import ext.ucoe.plmmigrationassistant.domain.*;
 import ext.ucoe.plmmigrationassistant.repository.*;
+import java.util.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.*;
-import static ext.ucoe.plmmigrationassistant.domain.Enums.*;
 @Service
 public class ExportService {
   private final MigrationProjectRepository projects;
@@ -71,10 +72,10 @@ public class ExportService {
             .append(fm.mappingStatus)
             .append("\n");
       }
-      b.append("\n## Implementation Notes\n\nThis deterministic export " +
-               "documents implementation requirements only. It does not " +
-               "generate executable scripts, production SQL, transformation " +
-               "code, or AI-generated pseudocode.\n");
+      b.append("\n## Implementation Notes\n\nThis deterministic export "
+               + "documents implementation requirements only. It does not "
+               + "generate executable scripts, production SQL, transformation "
+               + "code, or AI-generated pseudocode.\n");
     }
     DocumentExport de = new DocumentExport();
     de.project = p;

@@ -1,7 +1,7 @@
 package ext.ucoe.plmmigrationassistant.repository;
 import ext.ucoe.plmmigrationassistant.domain.*;
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.*;
+import org.springframework.data.jpa.repository.JpaRepository;
 public interface GapDecisionRepository
     extends JpaRepository<GapDecision, Long> {
   default List<GapDecision> findAllByProjectId(Long projectId) {
