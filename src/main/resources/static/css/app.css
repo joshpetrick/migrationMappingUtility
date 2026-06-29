@@ -53,3 +53,7 @@
   border-left: 4px solid #ffc107;
   padding-left: 1rem;
 }
+
+.project-health {
+  vertical-align: middle;
+}

@@ -1,10 +1,10 @@
 package ext.ucoe.plmmigrationassistant.repository;
-import ext.ucoe.plmmigrationassistant.domain.*;
-import java.util.*;
+
+import ext.ucoe.plmmigrationassistant.domain.DocumentExport;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 public interface DocumentExportRepository
     extends JpaRepository<DocumentExport, Long> {
-  default List<DocumentExport> findAllByProjectId(Long projectId) {
-    return findAll();
-  }
+  List<DocumentExport> findAllByProjectId(Long projectId);
 }

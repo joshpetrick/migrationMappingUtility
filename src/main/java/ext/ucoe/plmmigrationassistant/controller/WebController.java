@@ -5,12 +5,17 @@ import ext.ucoe.plmmigrationassistant.domain.*;
 import ext.ucoe.plmmigrationassistant.repository.*;
 import ext.ucoe.plmmigrationassistant.service.*;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class WebController {
   private final MigrationProjectRepository projects;
@@ -27,6 +32,9 @@ public class WebController {
   private final DocumentExportRepository exports;
   private final LookupTableRepository lookups;
   private final GapDecisionRepository gaps;
+  private final CsvImportService csvImport;
+  private final TargetModelImportService targetImport;
+
   public WebController(MigrationProjectRepository p, DemoDataService d,
                        TargetObjectTypeRepository t,
                        TargetAttributeRepository a, SourceTableRepository st,
@@ -34,7 +42,8 @@ public class WebController {
                        FieldMappingRepository m, AuditService au,
                        AuditFindingRepository f, ExportService e,
                        DocumentExportRepository ex, LookupTableRepository l,
-                       GapDecisionRepository g) {
+                       GapDecisionRepository g, CsvImportService csv,
+                       TargetModelImportService target) {
     projects = p;
     demo = d;
     types = t;
@@ -49,6 +58,8 @@ public class WebController {
     exports = ex;
     lookups = l;
     gaps = g;
+    csvImport = csv;
+    targetImport = target;
   }
   @GetMapping("/")
   String home(Model model) {
@@ -72,14 +83,25 @@ public class WebController {
   }
   @GetMapping("/projects/{id}")
   String dashboard(@PathVariable Long id, Model model) {
+    List<AuditFinding> projectFindings = findings.findAllByProjectId(id);
+    List<GapDecision> projectGaps = gaps.findAllByProjectId(id);
+    boolean hasErrors = projectFindings.stream().anyMatch(
+        finding -> finding.severity == Severity.ERROR);
+    String healthStatus = hasErrors ? "RED"
+                          : projectGaps.isEmpty() && projectFindings.isEmpty()
+                              ? "GREEN"
+                              : "YELLOW";
+
     model.addAttribute("project", projects.findById(id).orElseThrow());
     model.addAttribute(
         "types",
         types.findByTargetModelProjectIdAndActiveTrueOrderBySortOrderAsc(id));
     model.addAttribute("sources", tables.findBySourceImportProjectId(id));
-    model.addAttribute("findings", findings.findAllByProjectId(id));
+    model.addAttribute("findings", projectFindings);
     model.addAttribute("exports", exports.findAllByProjectId(id));
-    model.addAttribute("gaps", gaps.findAllByProjectId(id));
+    model.addAttribute("gaps", projectGaps);
+    model.addAttribute("healthStatus", healthStatus);
+    model.addAttribute("hasErrors", hasErrors);
     return "dashboard";
   }
   @GetMapping("/projects/{id}/workspace")
@@ -103,9 +125,9 @@ public class WebController {
         mappings.findByTargetObjectTypeId(selected == null ? -1 : selected.id);
     Map<Long, FieldMapping> mappingByAttribute =
         tabMappings.stream().collect(Collectors.toMap(
-            mapping -> mapping.targetAttribute.id,
-            Function.identity(),
-            (existing, replacement) -> replacement));
+            mapping
+            -> mapping.targetAttribute.id,
+            Function.identity(), (existing, replacement) -> replacement));
 
     model.addAttribute("sourceTables", tables.findBySourceImportProjectId(id));
     model.addAttribute("allColumns", cols.findAll());
@@ -117,7 +139,8 @@ public class WebController {
     return "workspace";
   }
   @PostMapping("/projects/{projectId}/mappings")
-  String saveMapping(@PathVariable Long projectId,
+  String
+  saveMapping(@PathVariable Long projectId,
               @RequestParam Long targetAttributeId,
               @RequestParam(required = false) Long sourceColumnId,
               @RequestParam MappingType mappingType,
@@ -167,6 +190,22 @@ public class WebController {
     return "redirect:/projects/" + projectId +
         "/workspace?objectTypeId=" + a.targetObjectType.id;
   }
+  @PostMapping("/projects/{id}/source-imports/csv")
+  String uploadSourceCsv(@PathVariable Long id,
+                         @RequestParam("file") MultipartFile file)
+      throws java.io.IOException {
+    csvImport.importCsv(id, file);
+    return "redirect:/projects/" + id;
+  }
+
+  @PostMapping("/projects/{id}/target-model/import-json")
+  String uploadTargetModel(@PathVariable Long id,
+                           @RequestParam("file") MultipartFile file)
+      throws java.io.IOException {
+    targetImport.importJson(id, file);
+    return "redirect:/projects/" + id;
+  }
+
   @PostMapping("/projects/{id}/audit")
   String runAudit(@PathVariable Long id) {
     audit.run(id);
@@ -176,6 +215,23 @@ public class WebController {
   String doExport(@PathVariable Long id, @PathVariable ExportType type) {
     export.export(id, type);
     return "redirect:/projects/" + id;
+  }
+
+  @GetMapping("/projects/{projectId}/exports/{exportId}/download")
+  ResponseEntity<String> downloadExport(@PathVariable Long projectId,
+                                        @PathVariable Long exportId) {
+    DocumentExport documentExport = exports.findById(exportId).orElseThrow();
+    if (documentExport.project == null ||
+        !documentExport.project.id.equals(projectId)) {
+      throw new IllegalArgumentException(
+          "Export does not belong to this project.");
+    }
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + documentExport.fileName + "\"")
+        .contentType(MediaType.TEXT_PLAIN)
+        .body(documentExport.content == null ? "" : documentExport.content);
   }
 
   @GetMapping("/help")

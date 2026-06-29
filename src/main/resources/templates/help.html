@@ -24,6 +24,15 @@
             <a class="list-group-item" href="#project-dashboard">
               Project dashboard
             </a>
+            <a class="list-group-item" href="#real-project-workflow">
+              Real project workflow
+            </a>
+            <a class="list-group-item" href="#import-source-csv">
+              Import source CSV
+            </a>
+            <a class="list-group-item" href="#import-target-model">
+              Import target model
+            </a>
             <a class="list-group-item" href="#source-schema-browser">
               Source schema browser
             </a>
@@ -62,6 +71,106 @@
               source imports, audit findings, open decisions, and generated
               documentation. Use the dashboard to open the target-first mapping
               workspace, run deterministic audit checks, and create exports.
+            </p>
+          </section>
+
+          <section id="real-project-workflow" class="help-section">
+            <h2>Real project workflow</h2>
+            <p>
+              For a real migration project, start with files exported from your
+              source PLM system and a JSON definition of the Windchill target
+              model/staging schema. No backend setting is required for the basic
+              MVP flow when you use the dashboard upload forms. H2 is used by
+              default for local testing; use PostgreSQL through Docker Compose
+              when you want project data to persist in a local database.
+            </p>
+            <ol>
+              <li>Create a project from the project list.</li>
+              <li>
+                Export source tables from Agile or another PLM system as CSV
+                files. For Agile, typical exports are ITEM, BOM, DOCUMENTS, and
+                ATTACHMENTS.
+              </li>
+              <li>
+                On the project dashboard, upload each CSV in the
+                <strong>Import Agile/source CSV</strong> card. The MVP imports
+                and profiles one CSV at a time.
+              </li>
+              <li>
+                Prepare a Windchill target model JSON file with target object
+                types and attributes. You can use
+                <code
+                  >src/main/resources/demo-data/windchill_target_model.json</code
+                >
+                as a shape/example.
+              </li>
+              <li>
+                Upload that JSON in the
+                <strong>Import Windchill target model JSON</strong> card. The
+                mapping workspace tabs are created from these records.
+              </li>
+              <li>
+                Open the target-first mapping workspace, select a Windchill
+                target tab, and manually enter mappings and requirements.
+              </li>
+              <li>
+                Run deterministic audit checks, resolve required unmapped fields
+                and customer decisions, then generate and download exports.
+              </li>
+            </ol>
+            <p>
+              API alternatives are also available: use
+              <code>POST /api/projects/{projectId}/source-imports/csv</code>
+              with multipart form field <code>file</code> for CSV imports and
+              <code
+                >POST /api/projects/{projectId}/target-model/import-json</code
+              >
+              with multipart form field <code>file</code> for target model JSON.
+            </p>
+          </section>
+
+          <section id="import-source-csv" class="help-section">
+            <h2>Import source CSV</h2>
+            <p>
+              Use the dashboard CSV upload to import source system exports. The
+              MVP expects a header row and comma-separated values. It creates a
+              source import record, a source table, and source column profile
+              rows. The profile shows row count, column count, null percentage,
+              distinct count, max observed length, sample values, duplicate
+              indicators, and likely list/enumeration indicators.
+            </p>
+            <p>
+              This profiling is factual only. It does not infer mappings and it
+              does not recommend target fields. The architect still chooses
+              every source-to-target mapping manually.
+            </p>
+          </section>
+
+          <section id="import-target-model" class="help-section">
+            <h2>Import Windchill target model JSON</h2>
+            <p>
+              Use target model JSON to configure Windchill target object tabs
+              and fields. The JSON should contain a model name/version and a
+              <code>targetObjectTypes</code> array. Each object type can include
+              object type name, display name, soft type, staging name, sort
+              order, and an <code>attributes</code> array.
+            </p>
+            <p>Each target attribute can include:</p>
+            <ul>
+              <li><code>attributeName</code> and <code>displayName</code></li>
+              <li><code>dataType</code></li>
+              <li><code>required</code></li>
+              <li><code>maxLength</code></li>
+              <li><code>legalValues</code></li>
+              <li><code>defaultValue</code> and <code>exampleValue</code></li>
+              <li>
+                <code>description</code>, validation notes, and staging notes
+              </li>
+              <li><code>sortOrder</code></li>
+            </ul>
+            <p>
+              After import, open the mapping workspace. The target object type
+              tabs come from the imported records, not hardcoded UI tabs.
             </p>
           </section>
 
@@ -130,6 +239,15 @@
               workbooks, validation plans, JSON mapping definitions, and
               implementation requirements. They do not generate production SQL,
               executable transformations, or AI-generated pseudocode.
+            </p>
+            <p>
+              In the current MVP, export buttons create a
+              <code>DocumentExport</code> record in the database. The dashboard
+              then shows a Download button for each generated export. Files
+              ending in <code>.md</code> are Markdown documents: plain-text
+              documentation that can be opened in a text editor, browser,
+              GitHub, or converted to Word/PDF in a later phase. The JSON
+              mapping export downloads as a <code>.json</code> file.
             </p>
           </section>
 
