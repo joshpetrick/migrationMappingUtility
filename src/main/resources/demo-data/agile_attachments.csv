@@ -1,0 +1,3 @@
+ITEM_NUMBER,FILE_NAME,FILE_PATH,FILE_CATEGORY,FILE_SIZE
+P-1001,spec.pdf,/vault/spec.pdf,Specification,1024
+P-1002,image.png,/vault/image.png,Image,2048
