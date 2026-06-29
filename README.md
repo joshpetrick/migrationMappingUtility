@@ -6,7 +6,7 @@ This is **not** an AI tool, middleware runtime, automatic migration engine, auto
 
 ## MVP Capabilities
 
-- Migration project creation and dashboard with red/yellow/green project health, audit findings, open decisions, upload forms, and export download links.
+- Migration project creation and dashboard with red/yellow/green project health, audit findings, open decisions, upload forms, and a single project documentation export download link.
 - Agile-to-Windchill demo seed button.
 - Configurable Windchill target object tabs loaded from `TargetObjectType` records.
 - Target-first mapping workspace centered on Windchill target fields.
@@ -19,7 +19,7 @@ This is **not** an AI tool, middleware runtime, automatic migration engine, auto
 - Lookup/crosswalk entities and demo lifecycle crosswalk values.
 - Gap/customer decision log entities and demo open customer decision.
 - Deterministic audit service for required unmapped fields, missing lookup/default/source assignments, unapproved mappings, missing validation notes, open customer decisions, and max-length warnings.
-- Documentation/export records for Mapping Specification, Customer Review Workbook, Implementation Requirements Export, and JSON mapping definitions.
+- A single Project Documentation export that combines mapping, audit, decision, review, and implementation sections.
 - REST endpoints for projects, source imports/profiles, target object types/attributes, mappings, lookups, gaps, audits, and exports.
 - H2 for local development/testing and Docker Compose for local PostgreSQL.
 

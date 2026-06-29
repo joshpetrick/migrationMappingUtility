@@ -246,13 +246,16 @@
               executable transformations, or AI-generated pseudocode.
             </p>
             <p>
-              In the current MVP, export buttons create a
+              In the current MVP, the Export Project Documentation button
+              creates a
               <code>DocumentExport</code> record in the database. The dashboard
               then shows a Download button for each generated export. Files
               ending in <code>.md</code> are Markdown documents: plain-text
               documentation that can be opened in a text editor, browser,
-              GitHub, or converted to Word/PDF in a later phase. The JSON
-              mapping export downloads as a <code>.json</code> file.
+              GitHub, or converted to Word/PDF in a later phase. Additional
+              specialized export buttons may be added later; for now, the single
+              project documentation export combines the core sections into one
+              Markdown file.
             </p>
           </section>
 
@@ -296,8 +299,9 @@
               </li>
               <li>Run the deterministic audit from the project dashboard.</li>
               <li>
-                Export the Mapping Specification, Customer Review Workbook, and
-                Implementation Requirements Export.
+                Click <strong>Export Project Documentation</strong> to create
+                one combined Markdown document with mapping, audit, decision,
+                review, and implementation sections.
               </li>
             </ol>
           </section>

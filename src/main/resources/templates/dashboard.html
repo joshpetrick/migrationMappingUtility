@@ -184,7 +184,11 @@
                 No open audit items recorded.
               </td>
             </tr>
-            <tr th:each="finding:${findings}">
+            <tr
+              class="clickable-row"
+              th:each="finding:${findings}"
+              th:attr="data-href=|/projects/${project.id}/workspace?objectTypeId=${finding.targetObjectType.id}#attr-${finding.targetAttribute.id}|"
+            >
               <td>
                 <span
                   class="badge"
@@ -194,27 +198,13 @@
               </td>
               <td th:text="${finding.category}"></td>
               <td
-                th:text="${finding.targetObjectType == null ? '' : finding.targetObjectType.displayName + '.' + finding.targetAttribute.attributeName}"
+                th:text="${finding.targetObjectType == null || finding.targetAttribute == null ? '' : finding.targetObjectType.displayName + '.' + finding.targetAttribute.attributeName}"
               ></td>
               <td th:text="${finding.message}"></td>
             </tr>
           </tbody>
         </table>
       </div>
-
-      <h2>
-        Configurable Windchill Target Tabs
-        <a class="help-link" href="/help#mapping-workspace" title="Help">?</a>
-      </h2>
-      <ul class="nav nav-pills mb-3">
-        <li class="nav-item" th:each="t:${types}">
-          <a
-            class="nav-link"
-            th:href="@{/projects/{id}/workspace(id=${project.id},objectTypeId=${t.id})}"
-            th:text="${t.displayName}"
-          ></a>
-        </li>
-      </ul>
 
       <h2>
         Exports <a class="help-link" href="/help#exports" title="Help">?</a>
@@ -232,34 +222,7 @@
           th:action="@{/projects/{id}/exports/MAPPING_SPECIFICATION(id=${project.id})}"
         >
           <button class="btn btn-outline-secondary">
-            Mapping Specification
-          </button>
-        </form>
-        <form
-          class="d-inline"
-          method="post"
-          th:action="@{/projects/{id}/exports/CUSTOMER_REVIEW_WORKBOOK(id=${project.id})}"
-        >
-          <button class="btn btn-outline-secondary">
-            Customer Review Workbook
-          </button>
-        </form>
-        <form
-          class="d-inline"
-          method="post"
-          th:action="@{/projects/{id}/exports/IMPLEMENTATION_REQUIREMENTS(id=${project.id})}"
-        >
-          <button class="btn btn-outline-secondary">
-            Implementation Requirements Export
-          </button>
-        </form>
-        <form
-          class="d-inline"
-          method="post"
-          th:action="@{/projects/{id}/exports/MAPPING_DEFINITIONS_JSON(id=${project.id})}"
-        >
-          <button class="btn btn-outline-secondary">
-            Mapping Definitions JSON
+            Export Project Documentation
           </button>
         </form>
       </div>
@@ -313,7 +276,11 @@
                 No open decisions recorded.
               </td>
             </tr>
-            <tr th:each="g:${gaps}">
+            <tr
+              class="clickable-row"
+              th:each="g:${gaps}"
+              th:attr="data-href=${g.targetObjectType == null || g.targetAttribute == null ? '' : '/projects/' + project.id + '/workspace?objectTypeId=' + g.targetObjectType.id + '#attr-' + g.targetAttribute.id}"
+            >
               <td th:text="${g.severity}"></td>
               <td th:text="${g.title}"></td>
               <td th:text="${g.status}"></td>
@@ -324,5 +291,14 @@
         </table>
       </div>
     </div>
+    <script>
+      document.querySelectorAll(".clickable-row[data-href]").forEach((row) => {
+        if (row.dataset.href) {
+          row.addEventListener("click", () => {
+            window.location.href = row.dataset.href;
+          });
+        }
+      });
+    </script>
   </body>
 </html>

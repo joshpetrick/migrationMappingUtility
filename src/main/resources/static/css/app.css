@@ -97,3 +97,16 @@
   flex: 1;
   overflow: auto;
 }
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background: #eef6ff;
+}
+
+tr:target {
+  outline: 3px solid #0d6efd;
+  outline-offset: -3px;
+}

@@ -101,6 +101,7 @@
                 <tbody>
                   <tr
                     th:each="a:${attributes}"
+                    th:id="${'attr-' + a.id}"
                     th:with="mapping=${mappingByAttribute[a.id]}, unmapped=${mapping == null or (mapping.sourceColumn == null and #strings.isEmpty(mapping.defaultValue) and mapping.mappingStatus.name() != 'NOT_APPLICABLE')}"
                     th:classappend="${a.required and unmapped}? 'required-error'"
                   >
