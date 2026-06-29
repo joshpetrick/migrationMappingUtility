@@ -1,0 +1,4 @@
+source_value,target_value,status,approved,unresolved
+Prototype,INWORK,NEEDS_CUSTOMER_REVIEW,false,true
+Released,RELEASED,APPROVED,true,false
+Obsolete,OBSOLETE,APPROVED,true,false
