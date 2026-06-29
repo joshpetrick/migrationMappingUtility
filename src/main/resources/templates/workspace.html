@@ -1,0 +1,262 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Mapping Workspace</title>
+    <link
+      rel="stylesheet"
+      href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <div class="container-fluid py-2">
+      <a th:href="@{/projects/{id}(id=${project.id})}">Dashboard</a>
+      <h1>Target-First Mapping Workspace</h1>
+      <p>
+        No AI, no inference, no auto-mapping. Architects manually select source
+        fields, mapping types, statuses, notes, and approvals.
+      </p>
+      <ul class="nav nav-tabs">
+        <li class="nav-item" th:each="t:${types}">
+          <a
+            class="nav-link"
+            th:classappend="${selected!=null and selected.id==t.id}? 'active'"
+            th:href="@{/projects/{id}/workspace(id=${project.id},objectTypeId=${t.id})}"
+            th:text="${t.displayName}"
+          ></a>
+        </li>
+      </ul>
+      <div class="row mt-3">
+        <div class="col-md-3">
+          <div class="card workspace-panel">
+            <div class="card-header">
+              <b>Source Schema Browser</b
+              ><input
+                class="form-control form-control-sm mt-2"
+                placeholder="Search source tables/fields"
+              />
+            </div>
+            <div class="card-body source-tree">
+              <div th:each="st:${sourceTables}" class="mb-3">
+                <b th:text="${st.tableName}"></b>
+                <div
+                  class="small-muted"
+                  th:text="${st.rowCount + ' rows, ' + st.columnCount + ' columns'}"
+                ></div>
+                <ul>
+                  <li
+                    th:each="c:${allColumns}"
+                    th:if="${c.sourceTable.id == st.id}"
+                  >
+                    <span th:text="${c.columnName}"></span>
+                    <div class="small-muted">
+                      sample: <span th:text="${c.sampleValues}"></span>
+                    </div>
+                    <div class="small-muted">
+                      null
+                      <span
+                        th:text="${#numbers.formatDecimal(c.nullPercentage,1,1)}"
+                      ></span
+                      >% | distinct <span th:text="${c.distinctCount}"></span> |
+                      max <span th:text="${c.maxLength}"></span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card workspace-panel">
+            <div class="card-header">
+              <b
+                th:text="${selected==null?'No target type selected':selected.displayName + ' Windchill Staging Schema / Mapping Matrix'}"
+              ></b>
+            </div>
+            <div class="card-body p-0">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Req</th>
+                    <th>Target Field</th>
+                    <th>Type</th>
+                    <th>Max</th>
+                    <th>Legal</th>
+                    <th>Manual Mapping Entry</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    th:each="a:${attributes}"
+                    th:classappend="${a.required}? 'required-error'"
+                  >
+                    <td>
+                      <span
+                        class="badge bg-danger status-pill"
+                        th:if="${a.required}"
+                        >ERROR if unmapped</span
+                      ><span
+                        class="badge bg-secondary status-pill"
+                        th:unless="${a.required}"
+                        >Optional</span
+                      >
+                    </td>
+                    <td th:text="${a.required?'Y':'N'}"></td>
+                    <td>
+                      <b th:text="${a.attributeName}"></b>
+                      <div class="small-muted" th:text="${a.displayName}"></div>
+                    </td>
+                    <td th:text="${a.dataType}"></td>
+                    <td th:text="${a.maxLength}"></td>
+                    <td th:text="${a.legalValues}"></td>
+                    <td>
+                      <form
+                        method="post"
+                        th:action="@{/projects/{id}/mappings(id=${project.id})}"
+                        class="row g-1"
+                      >
+                        <input
+                          type="hidden"
+                          name="targetAttributeId"
+                          th:value="${a.id}"
+                        />
+                        <div class="col-12">
+                          <select
+                            name="sourceColumnId"
+                            class="form-select form-select-sm"
+                          >
+                            <option value="">
+                              -- source selector / manual only --
+                            </option>
+                            <optgroup
+                              th:each="st:${sourceTables}"
+                              th:label="${st.tableName}"
+                            >
+                              <option
+                                th:each="c:${allColumns}"
+                                th:if="${c.sourceTable.id == st.id}"
+                                th:value="${c.id}"
+                                th:text="${st.tableName + '.' + c.columnName}"
+                              ></option>
+                            </optgroup>
+                          </select>
+                        </div>
+                        <div class="col-6">
+                          <select
+                            name="mappingType"
+                            class="form-select form-select-sm"
+                          >
+                            <option
+                              th:each="mt:${mappingTypes}"
+                              th:value="${mt}"
+                              th:text="${mt}"
+                            ></option>
+                          </select>
+                        </div>
+                        <div class="col-6">
+                          <select
+                            name="mappingStatus"
+                            class="form-select form-select-sm"
+                          >
+                            <option
+                              th:each="ms:${mappingStatuses}"
+                              th:value="${ms}"
+                              th:text="${ms}"
+                            ></option>
+                          </select>
+                        </div>
+                        <div class="col-6">
+                          <input
+                            name="defaultValue"
+                            class="form-control form-control-sm"
+                            placeholder="Default value"
+                          />
+                        </div>
+                        <div class="col-6">
+                          <input
+                            name="owner"
+                            class="form-control form-control-sm"
+                            placeholder="Owner"
+                          />
+                        </div>
+                        <div class="col-12">
+                          <textarea
+                            name="transformationRequirement"
+                            class="form-control form-control-sm"
+                            placeholder="Transformation requirement/comment"
+                          ></textarea>
+                        </div>
+                        <div class="col-12">
+                          <textarea
+                            name="validationNotes"
+                            class="form-control form-control-sm"
+                            placeholder="Validation notes"
+                          ></textarea>
+                        </div>
+                        <div class="col-12">
+                          <button class="btn btn-sm btn-primary">
+                            Save Mapping
+                          </button>
+                        </div>
+                      </form>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card workspace-panel">
+            <div class="card-header"><b>Mapping Detail / Audit Panel</b></div>
+            <div class="card-body">
+              <p>
+                Select a target field row and use its editable form to maintain
+                mapping detail. Saved rows retain target object type, target
+                field, source field, mapping type, default value, transformation
+                requirement, validation notes, assumptions, owner, approval
+                status, and audit context.
+              </p>
+              <h6>Audit indicators</h6>
+              <ul>
+                <li>
+                  <span class="badge bg-success">GREEN</span> mapped and
+                  approved
+                </li>
+                <li>
+                  <span class="badge bg-warning text-dark">YELLOW</span> needs
+                  review
+                </li>
+                <li>
+                  <span class="badge bg-danger">RED</span> required unmapped
+                </li>
+                <li>
+                  <span class="badge" style="background: purple">PURPLE</span>
+                  lookup required
+                </li>
+                <li><span class="badge bg-primary">BLUE</span> default used</li>
+                <li>
+                  <span class="badge bg-secondary">GRAY</span> not
+                  applicable/not migrated
+                </li>
+                <li>
+                  <span class="badge" style="background: orange">ORANGE</span>
+                  data quality warning
+                </li>
+                <li>📄 customer decision required</li>
+              </ul>
+              <h6>Existing mappings for tab</h6>
+              <ul>
+                <li
+                  th:each="m:${mappings}"
+                  th:text="${m.targetAttribute.attributeName + ' <= ' + (m.sourceColumn==null?'manual/default':m.sourceTable.tableName + '.' + m.sourceColumn.columnName) + ' [' + m.mappingType + ', ' + m.mappingStatus + ']'}"
+                ></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

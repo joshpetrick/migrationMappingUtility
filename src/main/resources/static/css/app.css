@@ -1,0 +1,22 @@
+.required-error {
+  background: #ffe5e5 !important;
+  border-left: 5px solid #dc3545;
+}
+
+.status-pill {
+  font-size: 0.75rem;
+}
+
+.workspace-panel {
+  height: 72vh;
+  overflow: auto;
+}
+
+.source-tree {
+  font-family: monospace;
+}
+
+.small-muted {
+  color: #6c757d;
+  font-size: 0.82rem;
+}
