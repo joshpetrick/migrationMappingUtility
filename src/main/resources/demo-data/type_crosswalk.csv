@@ -1,0 +1,3 @@
+source_value,target_value,status,approved,unresolved
+Engineering Part,ext.ucoe.windchill.EngineeringPart,APPROVED,true,false
+Service Part,ext.ucoe.windchill.ServicePart,NEEDS_CUSTOMER_REVIEW,false,true

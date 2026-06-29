@@ -1,0 +1,322 @@
+<!doctype html>
+<html>
+  <head>
+    <title>PLM Migration Assistant Help Center</title>
+    <link
+      rel="stylesheet"
+      href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <div class="container py-4 help-center">
+      <a href="/">Projects</a>
+      <h1>PLM Migration Assistant Help Center</h1>
+      <p class="lead">
+        Contextual, Windchill Help Center-style guidance for the deterministic
+        mapping workbench. The help topics explain what each area does and how
+        to run through the Agile-to-Windchill demo.
+      </p>
+      <div class="row">
+        <nav class="col-md-3">
+          <div class="list-group sticky-top help-nav">
+            <a class="list-group-item" href="#overview">Overview</a>
+            <a class="list-group-item" href="#project-dashboard">
+              Project dashboard
+            </a>
+            <a class="list-group-item" href="#real-project-workflow">
+              Real project workflow
+            </a>
+            <a class="list-group-item" href="#import-source-csv">
+              Import source CSV
+            </a>
+            <a class="list-group-item" href="#import-target-model">
+              Import target model
+            </a>
+            <a class="list-group-item" href="#source-schema-browser">
+              Source schema browser
+            </a>
+            <a class="list-group-item" href="#mapping-workspace">
+              Mapping workspace
+            </a>
+            <a class="list-group-item" href="#mapping-matrix">
+              Mapping matrix and status
+            </a>
+            <a class="list-group-item" href="#mapping-detail-panel">
+              Detail and audit panel
+            </a>
+            <a class="list-group-item" href="#exports">Exports</a>
+            <a class="list-group-item" href="#demo-how-to">Demo how-to</a>
+            <a class="list-group-item" href="#troubleshooting">
+              Troubleshooting
+            </a>
+          </div>
+        </nav>
+        <main class="col-md-9">
+          <section id="overview" class="help-section">
+            <h2>Overview</h2>
+            <p>
+              PLM Migration Assistant documents source-to-Windchill mappings,
+              transformation requirements, lookup/crosswalk needs, validation
+              notes, customer decisions, assumptions, exclusions, and exports.
+              It does not infer mappings, recommend mappings, use AI, or
+              generate executable transformation scripts.
+            </p>
+          </section>
+
+          <section id="project-dashboard" class="help-section">
+            <h2>Project dashboard</h2>
+            <p>
+              The dashboard summarizes a migration project, target object tabs,
+              source imports, open audit items, open decisions, and generated
+              documentation. Use the dashboard to open the target-first mapping
+              workspace, run deterministic audit checks, and create exports. The
+              dashboard only shows unresolved items from the latest audit run
+              because a new audit run clears previous audit items before
+              creating the current set.
+            </p>
+          </section>
+
+          <section id="real-project-workflow" class="help-section">
+            <h2>Real project workflow</h2>
+            <p>
+              For a real migration project, start with files exported from your
+              source PLM system and a JSON definition of the Windchill target
+              model/staging schema. No backend setting is required for the basic
+              MVP flow when you use the dashboard upload forms. H2 is used by
+              default for local testing; use PostgreSQL through Docker Compose
+              when you want project data to persist in a local database.
+            </p>
+            <ol>
+              <li>Create a project from the project list.</li>
+              <li>
+                Export source tables from Agile or another PLM system as CSV
+                files. For Agile, typical exports are ITEM, BOM, DOCUMENTS, and
+                ATTACHMENTS.
+              </li>
+              <li>
+                On the project dashboard, upload each CSV in the
+                <strong>Import Agile/source CSV</strong> card. The MVP imports
+                and profiles one CSV at a time.
+              </li>
+              <li>
+                Prepare a Windchill target model JSON file with target object
+                types and attributes. You can use
+                <code
+                  >src/main/resources/demo-data/windchill_target_model.json</code
+                >
+                as a shape/example.
+              </li>
+              <li>
+                Upload that JSON in the
+                <strong>Import Windchill target model JSON</strong> card. The
+                mapping workspace tabs are created from these records.
+              </li>
+              <li>
+                Open the target-first mapping workspace, select a Windchill
+                target tab, and manually enter mappings and requirements.
+              </li>
+              <li>
+                Run deterministic audit checks, resolve required unmapped fields
+                and customer decisions, then generate and download exports. If
+                errors are resolved and only warnings remain, the project status
+                changes from Blocked to Needs Review.
+              </li>
+            </ol>
+            <p>
+              API alternatives are also available: use
+              <code>POST /api/projects/{projectId}/source-imports/csv</code>
+              with multipart form field <code>file</code> for CSV imports and
+              <code
+                >POST /api/projects/{projectId}/target-model/import-json</code
+              >
+              with multipart form field <code>file</code> for target model JSON.
+            </p>
+          </section>
+
+          <section id="import-source-csv" class="help-section">
+            <h2>Import source CSV</h2>
+            <p>
+              Use the dashboard CSV upload to import source system exports. The
+              MVP expects a header row and comma-separated values. It creates a
+              source import record, a source table, and source column profile
+              rows. The profile shows row count, column count, null percentage,
+              distinct count, max observed length, sample values, duplicate
+              indicators, and likely list/enumeration indicators.
+            </p>
+            <p>
+              This profiling is factual only. It does not infer mappings and it
+              does not recommend target fields. The architect still chooses
+              every source-to-target mapping manually.
+            </p>
+          </section>
+
+          <section id="import-target-model" class="help-section">
+            <h2>Import Windchill target model JSON</h2>
+            <p>
+              Use target model JSON to configure Windchill target object tabs
+              and fields. The JSON should contain a model name/version and a
+              <code>targetObjectTypes</code> array. Each object type can include
+              object type name, display name, soft type, staging name, sort
+              order, and an <code>attributes</code> array.
+            </p>
+            <p>Each target attribute can include:</p>
+            <ul>
+              <li><code>attributeName</code> and <code>displayName</code></li>
+              <li><code>dataType</code></li>
+              <li><code>required</code></li>
+              <li><code>maxLength</code></li>
+              <li><code>legalValues</code></li>
+              <li><code>defaultValue</code> and <code>exampleValue</code></li>
+              <li>
+                <code>description</code>, validation notes, and staging notes
+              </li>
+              <li><code>sortOrder</code></li>
+            </ul>
+            <p>
+              After import, open the mapping workspace. The target object type
+              tabs come from the imported records, not hardcoded UI tabs.
+            </p>
+          </section>
+
+          <section id="source-schema-browser" class="help-section">
+            <h2>Source schema browser</h2>
+            <p>
+              The source schema browser lists imported source tables/files and
+              their discovered columns. It shows deterministic profile facts,
+              including sample values, null percentage, distinct count, maximum
+              observed length, duplicate indicators, and likely list/enumeration
+              indicators. These facts help an architect make a manual mapping
+              decision; they are not automatic mapping suggestions.
+            </p>
+          </section>
+
+          <section id="mapping-workspace" class="help-section">
+            <h2>Mapping workspace</h2>
+            <p>
+              The workspace is organized by configurable Windchill target object
+              types. Each tab is loaded from a <code>TargetObjectType</code>
+              record. Select a target tab, review the required Windchill fields,
+              and manually select a source field, mapping type, status, owner,
+              default value, transformation requirement, and validation notes.
+            </p>
+          </section>
+
+          <section id="mapping-matrix" class="help-section">
+            <h2>Mapping matrix and status</h2>
+            <p>
+              The center matrix is the system of record for target fields in the
+              selected Windchill object type. After you save a mapping, the row
+              remains populated with its selected source field, mapping type,
+              mapping status, owner, default value, and transformation notes.
+            </p>
+            <ul>
+              <li>
+                <strong>Blocked/red:</strong> required target field has no
+                source, default value, or not-applicable status.
+              </li>
+              <li><strong>GREEN:</strong> mapping status is approved.</li>
+              <li><strong>YELLOW:</strong> mapping needs customer review.</li>
+              <li><strong>PURPLE:</strong> mapping type is lookup.</li>
+              <li><strong>BLUE:</strong> mapping type is default value.</li>
+              <li>
+                <strong>GRAY:</strong> mapping is not applicable or not
+                migrated.
+              </li>
+            </ul>
+          </section>
+
+          <section id="mapping-detail-panel" class="help-section">
+            <h2>Detail and audit panel</h2>
+            <p>
+              The right panel explains status colors and summarizes existing
+              mappings for the selected target object tab. It is a quick audit
+              and review area; the editable fields in the center matrix are the
+              primary place to update mapping data in the MVP.
+            </p>
+          </section>
+
+          <section id="exports" class="help-section">
+            <h2>Exports</h2>
+            <p>
+              Exports are generated from structured data already entered in the
+              application. They document mapping specifications, customer review
+              workbooks, validation plans, JSON mapping definitions, and
+              implementation requirements. They do not generate production SQL,
+              executable transformations, or AI-generated pseudocode.
+            </p>
+            <p>
+              In the current MVP, export buttons create a
+              <code>DocumentExport</code> record in the database. The dashboard
+              then shows a Download button for each generated export. Files
+              ending in <code>.md</code> are Markdown documents: plain-text
+              documentation that can be opened in a text editor, browser,
+              GitHub, or converted to Word/PDF in a later phase. The JSON
+              mapping export downloads as a <code>.json</code> file.
+            </p>
+          </section>
+
+          <section id="demo-how-to" class="help-section">
+            <h2>Demo how-to: Agile ITEM to Windchill WTPart</h2>
+            <ol>
+              <li>
+                Open the project list and click
+                <strong>Create Agile-to-Windchill Demo Project</strong>.
+              </li>
+              <li>Open the generated project dashboard.</li>
+              <li>
+                Click <strong>Open Target-First Mapping Workspace</strong>.
+              </li>
+              <li>Select the <strong>WTPart</strong> target object tab.</li>
+              <li>
+                In the source schema browser, review the
+                <code>ITEM</code> fields such as <code>ITEM_NUMBER</code>,
+                <code>DESCRIPTION</code>, and <code>LIFECYCLE_PHASE</code>.
+              </li>
+              <li>
+                In the <code>number</code> row, select
+                <code>ITEM.ITEM_NUMBER</code>, choose <code>DIRECT</code>,
+                choose <code>APPROVED</code>, add validation notes, and save.
+              </li>
+              <li>
+                In the <code>name</code> row, select
+                <code>ITEM.DESCRIPTION</code>, choose <code>DIRECT</code>,
+                choose <code>PROPOSED</code>, add a transformation comment if
+                needed, and save.
+              </li>
+              <li>
+                In the <code>lifecycleState</code> row, select
+                <code>ITEM.LIFECYCLE_PHASE</code>, choose <code>LOOKUP</code>,
+                choose <code>NEEDS_CUSTOMER_REVIEW</code>, and note that the
+                lifecycle crosswalk requires customer approval.
+              </li>
+              <li>
+                Confirm that saved source fields, mapping types, statuses,
+                owners, defaults, and notes remain visible in the center matrix.
+              </li>
+              <li>Run the deterministic audit from the project dashboard.</li>
+              <li>
+                Export the Mapping Specification, Customer Review Workbook, and
+                Implementation Requirements Export.
+              </li>
+            </ol>
+          </section>
+
+          <section id="troubleshooting" class="help-section">
+            <h2>Troubleshooting mapping status display</h2>
+            <p>
+              If a row stays red after saving, check whether the required row
+              has at least one of these deterministic resolution values: a
+              selected source field, a default value, or a
+              <code>NOT_APPLICABLE</code>
+              mapping status. Also check that the saved mapping appears in the
+              row's Current Mapping column. The input controls should now remain
+              populated after save because the workspace reloads saved mapping
+              data by target attribute.
+            </p>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

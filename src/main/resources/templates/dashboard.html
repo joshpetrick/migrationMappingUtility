@@ -1,0 +1,328 @@
+<!doctype html>
+<html>
+  <head>
+    <title th:text="${project.name}"></title>
+    <link
+      rel="stylesheet"
+      href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <div class="container-fluid py-3">
+      <a href="/">Projects</a>
+      <h1>
+        <span th:text="${project.name}"></span>
+        <span
+          class="badge project-health"
+          th:classappend="${healthStatus == 'Blocked' ? ' text-bg-danger' : (healthStatus == 'Needs Review' ? ' text-bg-warning' : ' text-bg-success')}"
+          th:text="${healthStatus}"
+        ></span>
+        <a class="help-link" href="/help#project-dashboard" title="Help">?</a>
+      </h1>
+      <p>
+        <b>Customer:</b> <span th:text="${project.customerName}"></span> |
+        <b>Source:</b> <span th:text="${project.sourceSystem}"></span> |
+        <b>Target:</b> <span th:text="${project.targetSystem}"></span>
+      </p>
+
+      <div class="alert alert-danger" th:if="${hasErrors}">
+        This project has blocking audit errors. Review the Audit Findings table
+        below and resolve required unmapped Windchill fields.
+      </div>
+      <div
+        class="alert alert-warning"
+        th:if="${!hasErrors and #lists.size(gaps) > 0}"
+      >
+        This project has open customer decisions or gaps that should be reviewed
+        before approval.
+      </div>
+      <div class="alert alert-success" th:if="${healthStatus == 'On Track'}">
+        No audit findings or open decisions are currently recorded for this
+        project.
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body">
+              <h5>Target object types</h5>
+              <div class="display-6" th:text="${#lists.size(types)}"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body">
+              <h5>Source tables</h5>
+              <div class="display-6" th:text="${#lists.size(sources)}"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body">
+              <h5>Open audit items</h5>
+              <div class="display-6" th:text="${#lists.size(findings)}"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body">
+              <h5>Open decisions</h5>
+              <div class="display-6" th:text="${#lists.size(gaps)}"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="my-3">
+        <a
+          class="btn btn-primary"
+          th:href="@{/projects/{id}/workspace(id=${project.id})}"
+          >Open Target-First Mapping Workspace</a
+        >
+        <form
+          class="d-inline"
+          method="post"
+          th:action="@{/projects/{id}/audit(id=${project.id})}"
+        >
+          <button class="btn btn-warning">Run Deterministic Audit</button>
+        </form>
+      </div>
+
+      <div class="row g-3 my-2">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              Import Agile/source CSV
+              <a class="help-link" href="/help#import-source-csv" title="Help"
+                >?</a
+              >
+            </div>
+            <div class="card-body">
+              <form
+                method="post"
+                enctype="multipart/form-data"
+                th:action="@{/projects/{id}/source-imports/csv(id=${project.id})}"
+              >
+                <input
+                  class="form-control mb-2"
+                  type="file"
+                  name="file"
+                  accept=".csv"
+                  required
+                />
+                <button class="btn btn-outline-primary">
+                  Import and Profile CSV
+                </button>
+              </form>
+              <p class="small-muted mt-2">
+                For the MVP, import one CSV file at a time. The app profiles the
+                file and adds it to the source schema browser.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              Import Windchill target model JSON
+              <a class="help-link" href="/help#import-target-model" title="Help"
+                >?</a
+              >
+            </div>
+            <div class="card-body">
+              <form
+                method="post"
+                enctype="multipart/form-data"
+                th:action="@{/projects/{id}/target-model/import-json(id=${project.id})}"
+              >
+                <input
+                  class="form-control mb-2"
+                  type="file"
+                  name="file"
+                  accept=".json"
+                  required
+                />
+                <button class="btn btn-outline-primary">
+                  Import Target Model
+                </button>
+              </form>
+              <p class="small-muted mt-2">
+                Upload JSON with target object types and attributes. Target tabs
+                are created from those records.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>
+        Open Audit Items
+        <a class="help-link" href="/help#project-dashboard" title="Help">?</a>
+      </h2>
+      <p class="small-muted">
+        This table shows the latest unresolved audit items from the most recent
+        deterministic audit run. Previous run results are cleared when you run
+        audit again.
+      </p>
+      <div class="sticky-table-container audit-table-container">
+        <table class="table table-sm sticky-table">
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>Category</th>
+              <th>Target</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(findings)}">
+              <td colspan="4" class="text-muted">
+                No open audit items recorded.
+              </td>
+            </tr>
+            <tr th:each="finding:${findings}">
+              <td>
+                <span
+                  class="badge"
+                  th:classappend="${finding.severity.name() == 'ERROR' ? ' text-bg-danger' : ' text-bg-warning'}"
+                  th:text="${finding.severity}"
+                ></span>
+              </td>
+              <td th:text="${finding.category}"></td>
+              <td
+                th:text="${finding.targetObjectType == null ? '' : finding.targetObjectType.displayName + '.' + finding.targetAttribute.attributeName}"
+              ></td>
+              <td th:text="${finding.message}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>
+        Configurable Windchill Target Tabs
+        <a class="help-link" href="/help#mapping-workspace" title="Help">?</a>
+      </h2>
+      <ul class="nav nav-pills mb-3">
+        <li class="nav-item" th:each="t:${types}">
+          <a
+            class="nav-link"
+            th:href="@{/projects/{id}/workspace(id=${project.id},objectTypeId=${t.id})}"
+            th:text="${t.displayName}"
+          ></a>
+        </li>
+      </ul>
+
+      <h2>
+        Exports <a class="help-link" href="/help#exports" title="Help">?</a>
+      </h2>
+      <p class="small-muted">
+        The current MVP stores generated exports in the database and provides a
+        download link below. Markdown (.md) files are plain-text documentation
+        files that can be opened in a browser, text editor, GitHub, or converted
+        to Word/PDF later.
+      </p>
+      <div class="mb-2">
+        <form
+          class="d-inline"
+          method="post"
+          th:action="@{/projects/{id}/exports/MAPPING_SPECIFICATION(id=${project.id})}"
+        >
+          <button class="btn btn-outline-secondary">
+            Mapping Specification
+          </button>
+        </form>
+        <form
+          class="d-inline"
+          method="post"
+          th:action="@{/projects/{id}/exports/CUSTOMER_REVIEW_WORKBOOK(id=${project.id})}"
+        >
+          <button class="btn btn-outline-secondary">
+            Customer Review Workbook
+          </button>
+        </form>
+        <form
+          class="d-inline"
+          method="post"
+          th:action="@{/projects/{id}/exports/IMPLEMENTATION_REQUIREMENTS(id=${project.id})}"
+        >
+          <button class="btn btn-outline-secondary">
+            Implementation Requirements Export
+          </button>
+        </form>
+        <form
+          class="d-inline"
+          method="post"
+          th:action="@{/projects/{id}/exports/MAPPING_DEFINITIONS_JSON(id=${project.id})}"
+        >
+          <button class="btn btn-outline-secondary">
+            Mapping Definitions JSON
+          </button>
+        </form>
+      </div>
+      <div class="sticky-table-container export-table-container">
+        <table class="table table-sm sticky-table">
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Generated</th>
+              <th>Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(exports)}">
+              <td colspan="5" class="text-muted">No exports generated yet.</td>
+            </tr>
+            <tr th:each="e:${exports}">
+              <td th:text="${e.fileName}"></td>
+              <td th:text="${e.exportType}"></td>
+              <td th:text="${e.status}"></td>
+              <td th:text="${e.generatedAt}"></td>
+              <td>
+                <a
+                  class="btn btn-sm btn-outline-primary"
+                  th:href="@{/projects/{projectId}/exports/{exportId}/download(projectId=${project.id},exportId=${e.id})}"
+                  >Download</a
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Gap / Decision Log</h2>
+      <div class="sticky-table-container decision-table-container">
+        <table class="table table-sm sticky-table">
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Owner</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(gaps)}">
+              <td colspan="5" class="text-muted">
+                No open decisions recorded.
+              </td>
+            </tr>
+            <tr th:each="g:${gaps}">
+              <td th:text="${g.severity}"></td>
+              <td th:text="${g.title}"></td>
+              <td th:text="${g.status}"></td>
+              <td th:text="${g.owner}"></td>
+              <td th:text="${g.notes}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

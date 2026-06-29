@@ -1,0 +1,72 @@
+package ext.ucoe.plmmigrationassistant.domain;
+
+public final class Enums {
+  private Enums() {}
+  public enum ProjectStatus {
+    DRAFT,
+    IN_REVIEW,
+    APPROVED,
+    IMPLEMENTED,
+    ARCHIVED
+  }
+  public enum MappingStatus {
+    NOT_STARTED,
+    PROPOSED,
+    NEEDS_CUSTOMER_REVIEW,
+    APPROVED,
+    IMPLEMENTED,
+    DEFERRED,
+    NOT_APPLICABLE
+  }
+  public enum MappingType {
+    DIRECT,
+    DEFAULT_VALUE,
+    LOOKUP,
+    CONCATENATION,
+    SPLIT,
+    DERIVED,
+    CONDITIONAL,
+    NORMALIZATION,
+    REGEX_CLEANUP,
+    UNIT_CONVERSION,
+    DATE_FORMAT,
+    MANUAL_DECISION,
+    NOT_MIGRATED,
+    SOURCE_EXPRESSION,
+    CONSTANT
+  }
+  public enum GapStatus {
+    OPEN,
+    IN_REVIEW,
+    CUSTOMER_ACTION_REQUIRED,
+    RESOLVED,
+    ACCEPTED_RISK,
+    DEFERRED
+  }
+  public enum Severity { INFO, WARNING, ERROR }
+  public enum AuditStatus { OPEN, RESOLVED }
+  public enum ExportType {
+    MAPPING_SPECIFICATION,
+    TRANSFORMATION_REQUIREMENTS,
+    CUSTOMER_REVIEW_WORKBOOK,
+    GAP_DECISION_LOG,
+    VALIDATION_PLAN,
+    MAPPING_MATRIX_CSV,
+    LOOKUP_CROSSWALK_WORKBOOK,
+    MAPPING_DEFINITIONS_JSON,
+    IMPLEMENTATION_REQUIREMENTS
+  }
+  public enum ValidationCategory {
+    REQUIRED_FIELD,
+    ENUM_VALUE,
+    MAX_LENGTH,
+    DUPLICATE_VALUE,
+    RELATIONSHIP_INTEGRITY,
+    LOOKUP_COMPLETENESS,
+    FILE_EXISTENCE,
+    FILE_SIZE,
+    REFERENTIAL_INTEGRITY,
+    CUSTOMER_DECISION,
+    MANUAL_REVIEW
+  }
+}

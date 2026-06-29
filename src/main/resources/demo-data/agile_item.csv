@@ -1,0 +1,4 @@
+ITEM_NUMBER,DESCRIPTION,LIFECYCLE_PHASE,REV,CLASS,SUBCLASS,UOM,MAKE_BUY,MATERIAL
+P-1001,Widget,Prototype,A,Part,Engineering Part,each,Make,Steel
+P-1002,Bracket,Released,B,Part,Service Part,kg,Buy,Aluminum
+P-1003,Housing,Obsolete,C,Part,Engineering Part,each,Make,Plastic

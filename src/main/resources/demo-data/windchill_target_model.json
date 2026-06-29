@@ -1,0 +1,24 @@
+{
+  "name": "Windchill MVP Target Model",
+  "version": "demo",
+  "targetObjectTypes": [
+    {
+      "objectTypeName": "WTPart",
+      "displayName": "WTPart",
+      "stagingName": "STG_WTPART",
+      "attributes": [
+        {"attributeName":"number","displayName":"Number","dataType":"string","required":true,"maxLength":40},
+        {"attributeName":"name","displayName":"Name","dataType":"string","required":true,"maxLength":120},
+        {"attributeName":"defaultUnit","displayName":"Default Unit","dataType":"enum","required":true,"maxLength":10,"legalValues":"each, kg, m, l"},
+        {"attributeName":"lifecycleState","displayName":"Lifecycle State","dataType":"enum","required":true,"maxLength":20,"legalValues":"INWORK, RELEASED, OBSOLETE"},
+        {"attributeName":"container","displayName":"Container","dataType":"string","required":true,"maxLength":120},
+        {"attributeName":"folder","displayName":"Folder","dataType":"string","required":false,"maxLength":255},
+        {"attributeName":"revision","displayName":"Revision","dataType":"string","required":false,"maxLength":10},
+        {"attributeName":"source","displayName":"Source","dataType":"enum","required":false,"maxLength":10,"legalValues":"MAKE, BUY"},
+        {"attributeName":"partType","displayName":"Part Type","dataType":"string","required":false,"maxLength":80},
+        {"attributeName":"material","displayName":"Material","dataType":"string","required":false,"maxLength":80},
+        {"attributeName":"makeBuy","displayName":"Make/Buy","dataType":"enum","required":false,"maxLength":10,"legalValues":"MAKE, BUY"}
+      ]
+    }
+  ]
+}
