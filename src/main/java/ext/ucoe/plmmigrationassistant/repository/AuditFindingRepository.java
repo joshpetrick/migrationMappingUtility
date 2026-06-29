@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AuditFindingRepository
     extends JpaRepository<AuditFinding, Long> {
   List<AuditFinding> findAllByProjectId(Long projectId);
+
+  void deleteByProjectId(Long projectId);
 }

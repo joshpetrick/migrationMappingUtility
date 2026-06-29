@@ -68,9 +68,12 @@
             <h2>Project dashboard</h2>
             <p>
               The dashboard summarizes a migration project, target object tabs,
-              source imports, audit findings, open decisions, and generated
+              source imports, open audit items, open decisions, and generated
               documentation. Use the dashboard to open the target-first mapping
-              workspace, run deterministic audit checks, and create exports.
+              workspace, run deterministic audit checks, and create exports. The
+              dashboard only shows unresolved items from the latest audit run
+              because a new audit run clears previous audit items before
+              creating the current set.
             </p>
           </section>
 
@@ -115,7 +118,9 @@
               </li>
               <li>
                 Run deterministic audit checks, resolve required unmapped fields
-                and customer decisions, then generate and download exports.
+                and customer decisions, then generate and download exports. If
+                errors are resolved and only warnings remain, the project status
+                changes from Blocked to Needs Review.
               </li>
             </ol>
             <p>
@@ -207,8 +212,8 @@
             </p>
             <ul>
               <li>
-                <strong>RED:</strong> required target field has no source,
-                default value, or not-applicable status.
+                <strong>Blocked/red:</strong> required target field has no
+                source, default value, or not-applicable status.
               </li>
               <li><strong>GREEN:</strong> mapping status is approved.</li>
               <li><strong>YELLOW:</strong> mapping needs customer review.</li>

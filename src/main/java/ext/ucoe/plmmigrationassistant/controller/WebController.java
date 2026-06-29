@@ -87,10 +87,10 @@ public class WebController {
     List<GapDecision> projectGaps = gaps.findAllByProjectId(id);
     boolean hasErrors = projectFindings.stream().anyMatch(
         finding -> finding.severity == Severity.ERROR);
-    String healthStatus = hasErrors ? "RED"
+    String healthStatus = hasErrors ? "Blocked"
                           : projectGaps.isEmpty() && projectFindings.isEmpty()
-                              ? "GREEN"
-                              : "YELLOW";
+                              ? "On Track"
+                              : "Needs Review";
 
     model.addAttribute("project", projects.findById(id).orElseThrow());
     model.addAttribute(

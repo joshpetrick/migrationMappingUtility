@@ -15,7 +15,7 @@
         <span th:text="${project.name}"></span>
         <span
           class="badge project-health"
-          th:classappend="${healthStatus == 'RED' ? ' text-bg-danger' : (healthStatus == 'YELLOW' ? ' text-bg-warning' : ' text-bg-success')}"
+          th:classappend="${healthStatus == 'Blocked' ? ' text-bg-danger' : (healthStatus == 'Needs Review' ? ' text-bg-warning' : ' text-bg-success')}"
           th:text="${healthStatus}"
         ></span>
         <a class="help-link" href="/help#project-dashboard" title="Help">?</a>
@@ -37,7 +37,7 @@
         This project has open customer decisions or gaps that should be reviewed
         before approval.
       </div>
-      <div class="alert alert-success" th:if="${healthStatus == 'GREEN'}">
+      <div class="alert alert-success" th:if="${healthStatus == 'On Track'}">
         No audit findings or open decisions are currently recorded for this
         project.
       </div>
@@ -62,7 +62,7 @@
         <div class="col-md-3">
           <div class="card">
             <div class="card-body">
-              <h5>Audit findings</h5>
+              <h5>Open audit items</h5>
               <div class="display-6" th:text="${#lists.size(findings)}"></div>
             </div>
           </div>
@@ -160,38 +160,47 @@
       </div>
 
       <h2>
-        Audit Findings
+        Open Audit Items
         <a class="help-link" href="/help#project-dashboard" title="Help">?</a>
       </h2>
-      <table class="table table-sm">
-        <thead>
-          <tr>
-            <th>Severity</th>
-            <th>Category</th>
-            <th>Target</th>
-            <th>Message</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:if="${#lists.isEmpty(findings)}">
-            <td colspan="4" class="text-muted">No audit findings recorded.</td>
-          </tr>
-          <tr th:each="finding:${findings}">
-            <td>
-              <span
-                class="badge"
-                th:classappend="${finding.severity.name() == 'ERROR' ? ' text-bg-danger' : ' text-bg-warning'}"
-                th:text="${finding.severity}"
-              ></span>
-            </td>
-            <td th:text="${finding.category}"></td>
-            <td
-              th:text="${finding.targetObjectType == null ? '' : finding.targetObjectType.displayName + '.' + finding.targetAttribute.attributeName}"
-            ></td>
-            <td th:text="${finding.message}"></td>
-          </tr>
-        </tbody>
-      </table>
+      <p class="small-muted">
+        This table shows the latest unresolved audit items from the most recent
+        deterministic audit run. Previous run results are cleared when you run
+        audit again.
+      </p>
+      <div class="sticky-table-container audit-table-container">
+        <table class="table table-sm sticky-table">
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>Category</th>
+              <th>Target</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(findings)}">
+              <td colspan="4" class="text-muted">
+                No open audit items recorded.
+              </td>
+            </tr>
+            <tr th:each="finding:${findings}">
+              <td>
+                <span
+                  class="badge"
+                  th:classappend="${finding.severity.name() == 'ERROR' ? ' text-bg-danger' : ' text-bg-warning'}"
+                  th:text="${finding.severity}"
+                ></span>
+              </td>
+              <td th:text="${finding.category}"></td>
+              <td
+                th:text="${finding.targetObjectType == null ? '' : finding.targetObjectType.displayName + '.' + finding.targetAttribute.attributeName}"
+              ></td>
+              <td th:text="${finding.message}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <h2>
         Configurable Windchill Target Tabs
@@ -254,60 +263,66 @@
           </button>
         </form>
       </div>
-      <table class="table table-sm">
-        <thead>
-          <tr>
-            <th>File</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Generated</th>
-            <th>Download</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:if="${#lists.isEmpty(exports)}">
-            <td colspan="5" class="text-muted">No exports generated yet.</td>
-          </tr>
-          <tr th:each="e:${exports}">
-            <td th:text="${e.fileName}"></td>
-            <td th:text="${e.exportType}"></td>
-            <td th:text="${e.status}"></td>
-            <td th:text="${e.generatedAt}"></td>
-            <td>
-              <a
-                class="btn btn-sm btn-outline-primary"
-                th:href="@{/projects/{projectId}/exports/{exportId}/download(projectId=${project.id},exportId=${e.id})}"
-                >Download</a
-              >
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="sticky-table-container export-table-container">
+        <table class="table table-sm sticky-table">
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Generated</th>
+              <th>Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(exports)}">
+              <td colspan="5" class="text-muted">No exports generated yet.</td>
+            </tr>
+            <tr th:each="e:${exports}">
+              <td th:text="${e.fileName}"></td>
+              <td th:text="${e.exportType}"></td>
+              <td th:text="${e.status}"></td>
+              <td th:text="${e.generatedAt}"></td>
+              <td>
+                <a
+                  class="btn btn-sm btn-outline-primary"
+                  th:href="@{/projects/{projectId}/exports/{exportId}/download(projectId=${project.id},exportId=${e.id})}"
+                  >Download</a
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <h2>Gap / Decision Log</h2>
-      <table class="table table-sm">
-        <thead>
-          <tr>
-            <th>Severity</th>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Owner</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:if="${#lists.isEmpty(gaps)}">
-            <td colspan="5" class="text-muted">No open decisions recorded.</td>
-          </tr>
-          <tr th:each="g:${gaps}">
-            <td th:text="${g.severity}"></td>
-            <td th:text="${g.title}"></td>
-            <td th:text="${g.status}"></td>
-            <td th:text="${g.owner}"></td>
-            <td th:text="${g.notes}"></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="sticky-table-container decision-table-container">
+        <table class="table table-sm sticky-table">
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Owner</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(gaps)}">
+              <td colspan="5" class="text-muted">
+                No open decisions recorded.
+              </td>
+            </tr>
+            <tr th:each="g:${gaps}">
+              <td th:text="${g.severity}"></td>
+              <td th:text="${g.title}"></td>
+              <td th:text="${g.status}"></td>
+              <td th:text="${g.owner}"></td>
+              <td th:text="${g.notes}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </body>
 </html>

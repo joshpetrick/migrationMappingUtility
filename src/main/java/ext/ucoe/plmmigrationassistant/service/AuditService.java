@@ -24,6 +24,7 @@ public class AuditService {
   }
   @Transactional
   public List<AuditFinding> run(Long projectId) {
+    findings.deleteByProjectId(projectId);
     MigrationProject p = projects.findById(projectId).orElseThrow();
     List<AuditFinding> out = new ArrayList<>();
     for (TargetObjectType type :
